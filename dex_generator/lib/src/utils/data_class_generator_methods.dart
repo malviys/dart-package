@@ -1,4 +1,5 @@
 import 'package:dex_generator/src/model/ClassVisitor.dart';
+import 'package:dex_generator/src/utils/utils.dart';
 
 // ================= Fields ===================
 void fields(StringBuffer codeBuffer, ClassVisitor visitor) {
@@ -8,7 +9,7 @@ void fields(StringBuffer codeBuffer, ClassVisitor visitor) {
 
 // ================= Constructor ===================
 void constructor(StringBuffer codeBuffer, ClassVisitor visitor) {
-  final className = getClassName(visitor.element.displayName);
+  final className = getClassName(visitor.element);
 
   codeBuffer.write("const $className({");
 
@@ -21,7 +22,7 @@ void constructor(StringBuffer codeBuffer, ClassVisitor visitor) {
 
 // ================= Copy With ===================
 void copyWith(StringBuffer codeBuffer, ClassVisitor visitor) {
-  final className = getClassName(visitor.element.displayName);
+  final className = getClassName(visitor.element);
 
   codeBuffer.write("$className copyWith({");
   visitor.fields.forEach((e) => codeBuffer.write("${e.type} ${e.name},"));
@@ -44,7 +45,7 @@ void copyWith(StringBuffer codeBuffer, ClassVisitor visitor) {
 
 // ================= From Map ===================
 void fromMap(StringBuffer codeBuffer, ClassVisitor visitor) {
-  final className = getClassName(visitor.element.displayName);
+  final className = getClassName(visitor.element);
 
   codeBuffer.writeln("factory $className.fromMap(Map<String, dynamic> map) {");
   codeBuffer.writeln("return new $className(");
@@ -79,7 +80,7 @@ void hashCode(StringBuffer codeBuffer, ClassVisitor visitor) {
 
 // ================= Equals ===================
 void equals(StringBuffer codeBuffer, ClassVisitor visitor) {
-  final className = getClassName(visitor.element.displayName);
+  final className = getClassName(visitor.element);
 
   codeBuffer.writeln("@override bool operator ==(Object other){");
   codeBuffer.write("return identical(this, other) ||");
@@ -94,7 +95,7 @@ void equals(StringBuffer codeBuffer, ClassVisitor visitor) {
 
 // ================= To String ===================
 void toString(StringBuffer codeBuffer, ClassVisitor visitor) {
-  final className = getClassName(visitor.element.displayName);
+  final className = getClassName(visitor.element);
 
   codeBuffer.writeln("@override String toString() => \"$className {");
 
@@ -108,5 +109,3 @@ void toString(StringBuffer codeBuffer, ClassVisitor visitor) {
   codeBuffer.write(str.substring(0, str.lastIndexOf(",")));
   codeBuffer.write("}\";}");
 }
-
-String getClassName(String name) => name.replaceFirst("_\$", "");
