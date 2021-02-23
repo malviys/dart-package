@@ -1,0 +1,14 @@
+targets:
+  dex_generator:dex_generator:
+    builders:
+      dex_generator|dex:
+        enabled: True
+
+builders:
+  dex:
+    import: 'package:dex_generator/builder.dart'
+    builder_factories: ['dex']
+    build_extensions: { '.dart': [ '.info.dart' ] }
+    auto_apply: dependents
+    build_to: cache
+    applies_builders: ["source_gen|combining_builder"]
