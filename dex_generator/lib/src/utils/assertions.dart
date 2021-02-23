@@ -1,6 +1,6 @@
 import 'package:analyzer/dart/element/element.dart';
 
-void assertDataClass(Element element) {
+void assertClass(Element element) {
   Element el;
 
   try {
@@ -17,3 +17,5 @@ void assertDataClass(Element element) {
     );
   }
 }
+
+

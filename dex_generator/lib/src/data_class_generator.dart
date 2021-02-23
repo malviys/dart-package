@@ -18,7 +18,7 @@ class DataClassGenerator extends GeneratorForAnnotation<DataClass> {
 }
 
 String _dataClassSourceGenerate(Element element) {
-  assertDataClass(element);
+  assertClass(element);
 
   final codeBuffer = StringBuffer();
   final visitor = ClassVisitor(element);
