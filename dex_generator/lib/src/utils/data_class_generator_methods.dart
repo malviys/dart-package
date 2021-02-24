@@ -64,7 +64,7 @@ void dataClassFromMap(StringBuffer codeBuffer, ClassVisitor visitor) {
 // ================= To Map ===================
 void dataClassToMap(StringBuffer codeBuffer, ClassVisitor visitor) {
   codeBuffer.writeln("Map<String, dynamic> toMap() => {");
-  visitor.fields.forEach((field) => codeBuffer.writeln(field.field));
+  visitor.fields.forEach((field) => codeBuffer.writeln("\"${field.name}\": ${field.name}"));
   codeBuffer.writeln("} as Map<String, dynamic>;\n");
 }
 
