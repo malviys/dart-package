@@ -1,31 +1,33 @@
-import 'package:dex_generator/src/model/ClassVisitor.dart';
+import 'package:dex_generator/src/model/class_visitor.dart';
+import 'package:dex_generator/src/model/field.dart';
 import 'package:dex_generator/src/utils/utils.dart';
 
+//
 // ================= Fields ===================
-void fields(StringBuffer codeBuffer, ClassVisitor visitor) {
+void dataClassFields(StringBuffer codeBuffer, ClassVisitor visitor) {
   // iterating over fields
-  visitor.fields.forEach((e) => codeBuffer.writeln(e.field));
+  visitor.fields.forEach((field) => codeBuffer.writeln(field.finalField));
+  codeBuffer.writeln();
 }
 
 // ================= Constructor ===================
-void constructor(StringBuffer codeBuffer, ClassVisitor visitor) {
-  final className = getClassName(visitor.element);
+void dataClassConstructor(StringBuffer codeBuffer, ClassVisitor visitor) {
+  final className = getClassName(visitor.classType);
 
   codeBuffer.write("const $className({");
 
-  visitor.fields.forEach(
-    (e) => codeBuffer.write("${e.constructorField}"),
-  );
+  visitor.fields.forEach((field) => codeBuffer.write(field.constructorField));
 
-  codeBuffer.write("});");
+  codeBuffer.writeln("});\n");
 }
 
 // ================= Copy With ===================
-void copyWith(StringBuffer codeBuffer, ClassVisitor visitor) {
-  final className = getClassName(visitor.element);
+void dataClassCopyWith(StringBuffer codeBuffer, ClassVisitor visitor) {
+  final className = getClassName(visitor.classType);
 
   codeBuffer.write("$className copyWith({");
-  visitor.fields.forEach((e) => codeBuffer.write("${e.type} ${e.name},"));
+  visitor.fields.forEach((field) =>
+      codeBuffer.write("${typeToProperForm(field.type)} ${field.name},"));
   codeBuffer.write("}){");
   codeBuffer.write("if(");
   var str = "";
@@ -40,34 +42,34 @@ void copyWith(StringBuffer codeBuffer, ClassVisitor visitor) {
   visitor.fields.forEach((e) {
     codeBuffer.write("${e.name}: ${e.name} ?? this.${e.name},");
   });
-  codeBuffer.write(");}");
+  codeBuffer.writeln(");}\n");
 }
 
 // ================= From Map ===================
-void fromMap(StringBuffer codeBuffer, ClassVisitor visitor) {
-  final className = getClassName(visitor.element);
+void dataClassFromMap(StringBuffer codeBuffer, ClassVisitor visitor) {
+  final className = getClassName(visitor.classType);
 
   codeBuffer.writeln("factory $className.fromMap(Map<String, dynamic> map) {");
   codeBuffer.writeln("return new $className(");
 
-  visitor.fields.forEach((e) {
-    codeBuffer.write("${e.name}: map['${e.name}'] as ${e.type},");
-  });
+  visitor.fields.forEach(
+    (field) => codeBuffer.write(
+      "${field.name}: map['${field.name}'] as ${typeToProperForm(field.type)},",
+    ),
+  );
 
-  codeBuffer.writeln(");}");
+  codeBuffer.writeln(");}\n");
 }
 
 // ================= To Map ===================
-void toMap(StringBuffer codeBuffer, ClassVisitor visitor) {
+void dataClassToMap(StringBuffer codeBuffer, ClassVisitor visitor) {
   codeBuffer.writeln("Map<String, dynamic> toMap() => {");
-  visitor.fields.forEach((e) {
-    codeBuffer.writeln("${e.name} : this.${e.name},");
-  });
-  codeBuffer.writeln("} as Map<String, dynamic>;");
+  visitor.fields.forEach((field) => codeBuffer.writeln(field.field));
+  codeBuffer.writeln("} as Map<String, dynamic>;\n");
 }
 
 // ================= Hash Code ===================
-void hashCode(StringBuffer codeBuffer, ClassVisitor visitor) {
+void dataClassHashCode(StringBuffer codeBuffer, ClassVisitor visitor) {
   codeBuffer.writeln("@override int get hashCode => ");
 
   var str = "";
@@ -75,14 +77,14 @@ void hashCode(StringBuffer codeBuffer, ClassVisitor visitor) {
     str += "${e.name}.hashCode ^ ";
   });
 
-  codeBuffer.write(str.substring(0, str.lastIndexOf("^ ")) + ";");
+  codeBuffer.writeln(str.substring(0, str.lastIndexOf("^ ")) + ";\n");
 }
 
 // ================= Equals ===================
-void equals(StringBuffer codeBuffer, ClassVisitor visitor) {
-  final className = getClassName(visitor.element);
+void dataClassEquals(StringBuffer codeBuffer, ClassVisitor visitor) {
+  final className = getClassName(visitor.classType);
 
-  codeBuffer.writeln("@override bool operator ==(Object other){");
+  codeBuffer.write("@override bool operator ==(Object other){");
   codeBuffer.write("return identical(this, other) ||");
   codeBuffer.write("(other is $className && runtimeType == other.runtimeType ");
   var str = "";
@@ -90,22 +92,27 @@ void equals(StringBuffer codeBuffer, ClassVisitor visitor) {
     str += "&& ${e.name} == other.${e.name} ";
   });
   codeBuffer.write(str + ");");
-  codeBuffer.writeln("}");
+  codeBuffer.writeln("}\n");
 }
 
 // ================= To String ===================
-void toString(StringBuffer codeBuffer, ClassVisitor visitor) {
-  final className = getClassName(visitor.element);
+void dataClassToString(StringBuffer codeBuffer, ClassVisitor visitor) {
+  final className = getClassName(visitor.classType);
 
-  codeBuffer.writeln("@override String toString() => \"$className {");
-
+  var str = "@override String toString() => \"$className{";
   // iterating over fields
-  String str = "";
-  visitor.fields.forEach((e) {
-    str += ("${e.name}: \$${e.name}, ");
-  });
+  visitor.fields.forEach((field) => str += field.field);
   // end of iteration
 
-  codeBuffer.write(str.substring(0, str.lastIndexOf(",")));
-  codeBuffer.write("}\";}");
+  str = str.substring(0, str.lastIndexOf(",")) + "}\";";
+  codeBuffer.writeln("$str\n");
+}
+
+extension on Field {
+  String get finalField => "final ${typeToProperForm(this.type)} ${this.name};";
+
+  String get constructorField =>
+      "${this.hasValue ? "this.${this.name} = ${this.value}" : "@required this.${this.name}"},";
+
+  String get field => "${this.name}: \$${this.name}, ";
 }

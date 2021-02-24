@@ -13,14 +13,8 @@ class Field {
     this.hasValue,
   });
 
-  String get field =>
-      "final ${type.getDisplayString(withNullability: false)} $name;";
-
-  String get constructorField =>
-      "${hasValue ? "this.$name = $value" : "@required this.$name"},";
-
   @override
   String toString() {
-    return 'Field{type: $type, name: $name}';
+    return 'Field{type: $type, name: $name, value: $value, hasValue: $hasValue}';
   }
 }
